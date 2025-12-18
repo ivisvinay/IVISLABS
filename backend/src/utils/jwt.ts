@@ -1,0 +1,23 @@
+import jwt from 'jsonwebtoken';
+import { AuthenticationError } from './errors';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_EXPIRE = process.env.JWT_EXPIRE || '7d';
+
+export interface JWTPayload {
+  userId: string;
+  email: string;
+  userType: 'company' | 'student';
+}
+
+export const generateToken = (payload: JWTPayload): string => {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRE });
+};
+
+export const verifyToken = (token: string): JWTPayload => {
+  try {
+    return jwt.verify(token, JWT_SECRET) as JWTPayload;
+  } catch (error) {
+    throw new AuthenticationError('Invalid or expired token');
+  }
+};
